@@ -31,6 +31,12 @@ export default class Model {
 
   constructor (attributes: { [key: string]: any } = {}) {
     this.attributes = observable.map(attributes)
+    Object.keys(attributes).forEach(key => {
+      Object.defineProperty(this, key, {
+        get: () => this.attributes.get(key),
+        set: (val) => this.attributes.set(key, val)
+      })
+    })
   }
 
   /**

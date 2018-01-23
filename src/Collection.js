@@ -20,9 +20,12 @@ export default class Collection<T: Model> {
   @observable request: ?Request = null
   @observable error: ?ErrorObject = null
   @observable models: IObservableArray<T> = []
+  @observable isLoading: boolean = true
 
-  constructor (data: Array<{ [key: string]: any }> = []) {
-    this.set(data)
+  constructor (data: Array<{ [key: string]: any }> = undefined) {
+    if (data !== undefined) {
+      this.set(data)
+    }
   }
 
   /**
@@ -65,6 +68,13 @@ export default class Collection<T: Model> {
   }
 
   /**
+   * Alias for toArray()
+   */
+  get all () {
+    return this.toArray()
+  }
+
+  /**
    * Questions whether the request exists
    * and matches a certain label
    */
@@ -72,6 +82,13 @@ export default class Collection<T: Model> {
     if (!this.request) return false
 
     return this.request.label === label
+  }
+
+  /**
+   * Aliases for checking request status
+   */
+  get isFetching (): boolean {
+    return this.isRequest('fetching')
   }
 
   /**
@@ -86,6 +103,33 @@ export default class Collection<T: Model> {
    */
   _ids (): Array<Id> {
     return map(this.models, item => item.id).filter(Boolean)
+  }
+
+  /**
+   * Get a resource at a given position
+   */
+  at (index: number): ?T {
+    return this.models[index]
+  }
+
+  /**
+   * Return first resource in the collection
+   */
+  get first (): ?T {
+    if (this.models.length > 0) {
+      return this.at(0)
+    }
+    return undefined
+  }
+
+  /**
+   * Return last resource in the collection
+   */
+  get last (): ?T {
+    if (this.models.length > 0) {
+      return this.at(this.models.length - 1)
+    }
+    return undefined
   }
 
   /**
@@ -146,6 +190,13 @@ export default class Collection<T: Model> {
   }
 
   /**
+   * Alias for find
+   */
+  where (query: { [key: string]: mixed }): ?T {
+    return this.find(query)
+  }
+
+  /**
    * Adds a collection of models.
    * Returns the added models.
    */
@@ -202,6 +253,8 @@ export default class Collection<T: Model> {
       if (model && change) model.set(resource)
       if (!model && add) this.add([resource])
     })
+
+    this.isLoading = false
   }
 
   /**
