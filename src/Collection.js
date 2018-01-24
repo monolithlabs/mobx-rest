@@ -133,13 +133,6 @@ export default class Collection<T: Model> {
   }
 
   /**
-   * Get a resource at a given position
-   */
-  at (index: number): ?T {
-    return this.models[index]
-  }
-
-  /**
    * Get a resource with the given id or uuid
    */
   get (id: Id): ?T {
