@@ -34,7 +34,7 @@ export default class Model {
     Object.keys(attributes).forEach(key => {
       Object.defineProperty(this, key, {
         get: () => this.attributes.get(key),
-        set: (val) => this.attributes.set(key, val)
+        set: (val) => this.set({ [key]: val })
       })
     })
   }
