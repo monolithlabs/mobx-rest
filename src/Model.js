@@ -21,6 +21,12 @@ import type {
   CreateOptions
 } from './types'
 
+const reserved = new Set([
+  'toJS', 'primaryKey', 'urlRoot', 'url', 'isRequest', 'isNew',
+  'get', 'has', 'id', 'reset', 'set',
+  'fetch', 'save', '_create', 'destroy', 'rpc'
+])
+
 export default class Model {
   @observable request: ?Request = null
   @observable error: ?ErrorObject = null
@@ -32,10 +38,12 @@ export default class Model {
   constructor (attributes: { [key: string]: any } = {}) {
     this.attributes = observable.map(attributes)
     Object.keys(attributes).forEach(key => {
-      Object.defineProperty(this, key, {
-        get: () => this.attributes.get(key),
-        set: (val) => this.set({ [key]: val })
-      })
+      if (!reserved.has(key)) {
+        Object.defineProperty(this, key, {
+          get: () => this.attributes.get(key),
+          set: (val) => this.set({ [key]: val })
+        })
+      }
     })
   }
 
