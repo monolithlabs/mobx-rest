@@ -36,7 +36,7 @@ export default class Model {
   collection: ?Collection<*> = null
 
   constructor (attributes: { [key: string]: any } = {}) {
-    this.attributes = observable.map(attributes)
+    this.attributes = this.shallow() ? {...attributes} : observable.map(attributes)
     Object.keys(attributes).forEach(key => {
       if (!reserved.has(key)) {
         Object.defineProperty(this, key, {
@@ -96,6 +96,14 @@ export default class Model {
     } else {
       return `${urlRoot}/${this.get(this.primaryKey)}`
     }
+  }
+
+  /**
+   * If shallow, attributes will not be observable
+   * (good for read-only models)
+   */
+  shallow (): boolean {
+    return false
   }
 
   /**
