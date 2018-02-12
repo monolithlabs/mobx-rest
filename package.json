@@ -1,6 +1,6 @@
 {
   "name": "@monolithlabs/mobx-rest",
-  "version": "2.2.8",
+  "version": "2.2.9",
   "description": "REST conventions for mobx.",
   "repository": {
     "type": "git",

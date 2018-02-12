@@ -36,7 +36,14 @@ export default class Model {
   collection: ?Collection<*> = null
 
   constructor (attributes: { [key: string]: any } = {}) {
-    this.attributes = this.shallow() ? {...attributes} : observable.map(attributes)
+    if (this.shallow()) {
+      this.attributes = new Map()
+      Object.keys(attributes).forEach(key => {
+        this.attributes.set(key, attributes[key])
+      })
+    } else {
+      this.attributes = observable.map(attributes)
+    }
     Object.keys(attributes).forEach(key => {
       if (!reserved.has(key)) {
         Object.defineProperty(this, key, {
