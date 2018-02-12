@@ -22,6 +22,8 @@ export default class Collection<T: Model> {
   @observable models: IObservableArray<T> = []
   @observable isLoading: boolean = true
 
+  index: Map = new Map()
+
   constructor (data: Array<{ [key: string]: any }> = undefined) {
     if (data !== undefined) {
       this.set(data)
@@ -136,7 +138,7 @@ export default class Collection<T: Model> {
    * Get a resource with the given id or uuid
    */
   get (id: Id): ?T {
-    return this.models.find(item => item.id === id)
+    return this.index.get(id)
   }
 
   /**
@@ -197,6 +199,7 @@ export default class Collection<T: Model> {
   add (data: Array<{ [key: string]: any }>): Array<T> {
     const models = data.map(d => this.build(d))
     this.models.push(...models)
+    models.forEach(model => { this.index.set(model.id, model) })
     return models
   }
 
@@ -208,6 +211,8 @@ export default class Collection<T: Model> {
   reset (data: Array<{ [key: string]: any }>): Array<T> {
     const models = data.map(d => this.build(d))
     this.models = models
+    this.index.clear()
+    models.forEach(model => { this.index.set(model.id, model) })
     return models
   }
 
@@ -221,6 +226,7 @@ export default class Collection<T: Model> {
       if (!model) return
 
       this.models.splice(this.models.indexOf(model), 1)
+      this.index.delete(id)
     })
   }
 
