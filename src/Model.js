@@ -21,7 +21,7 @@ import type {
   CreateOptions
 } from './types'
 
-const reserved = new Set([
+const _reserved = new Set([
   'toJS', 'primaryKey', 'urlRoot', 'url', 'isRequest', 'isNew',
   'get', 'has', 'id', 'reset', 'set',
   'fetch', 'save', '_create', 'destroy', 'rpc'
@@ -44,8 +44,11 @@ export default class Model {
     } else {
       this.attributes = observable.map(attributes)
     }
+
+    // Create getters / setters
+    const reservedKeys = this.reserved()
     Object.keys(attributes).forEach(key => {
-      if (!reserved.has(key)) {
+      if (!reservedKeys.has(key)) {
         Object.defineProperty(this, key, {
           get: () => this.attributes.get(key),
           set: (val) => this.set({ [key]: val })
@@ -54,11 +57,18 @@ export default class Model {
     })
   }
 
+  reserved () {
+    return new Set(_reserved)
+  }
+
   /**
    * Returns a JSON representation
    * of the model
    */
   toJS () {
+    if (this.shallow()) {
+      return Object.assign({}, ...[...this.attributes].map(([k, v]) => ({[k]: v})))
+    }
     return toJS(this.attributes)
   }
 
@@ -176,7 +186,11 @@ export default class Model {
    */
   @action
   reset (data: {}): void {
-    this.attributes.replace(data)
+    if (this.shallow()) {
+      this.attributes = new Map(Object.entries(data))
+    } else {
+      this.attributes.replace(data)
+    }
   }
 
   /**
@@ -185,7 +199,11 @@ export default class Model {
    */
   @action
   set (data: {}): void {
-    this.attributes.merge(data)
+    if (this.shallow()) {
+      Object.entries(data).forEach(([k, v]) => this.attributes.set(k, v))
+    } else {
+      this.attributes.merge(data)
+    }
   }
 
   /**
