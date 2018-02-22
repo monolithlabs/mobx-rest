@@ -38,6 +38,13 @@ export default class Collection<T: Model> {
   }
 
   /**
+   * Alias for isLoading
+   */
+  @computed get loading (): boolean {
+    return this.isLoading
+  }
+
+  /**
    * Returns the URL where the model's resource would be located on the server.
    *
    * @abstract
